@@ -8,7 +8,8 @@ static ABSOLUTE_PAGES_PATH: &'static str = "./src/pages";
 #[derive(Debug)]
 pub enum StatusCode {
   Ok,
-  NotFound
+  NotFound,
+  Accepted
 }
 
 #[allow(dead_code)]
@@ -48,7 +49,8 @@ impl Meowsponse {
 
     let status = match self.status {
       StatusCode::Ok => "200 Ok",
-      StatusCode::NotFound => "404 Not Found"
+      StatusCode::NotFound => "404 Not Found",
+      StatusCode::Accepted => "202 Accepted"
     };
 
     let mut headers = String::new();

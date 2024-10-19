@@ -7,9 +7,10 @@ pub enum HttpVersion {
   Two
 }
 
-#[derive(Debug, Clone)]
-enum Meowthod {
-  Get
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+pub enum HttpMethod {
+  Get,
+  Post
 }
 
 #[allow(dead_code)]
@@ -17,7 +18,7 @@ enum Meowthod {
 pub struct Meowquest {
   pub stream: TcpStream,
   pub http_version: HttpVersion,
-  pub method: Meowthod,
+  pub method: HttpMethod,
   pub path: String,
   pub headers: HashMap<String, String>,
   pub body: Option<String>,
@@ -36,11 +37,11 @@ impl Meowquest {
 
     Meowquest {
       stream,
-      method: Meowquest::get_meowthod(&head[0]),
+      method: Meowquest::get_method(&head[0]),
       path: String::from(&head[1]),
-      http_version: Meowquest::get_meow_version(&head[2]),
-      headers: Meowquest::get_meaders(parts),
-      body: Meowquest::get_mowdy(body)
+      http_version: Meowquest::get_http_version(&head[2]),
+      headers: Meowquest::get_headers(parts),
+      body: Meowquest::get_body(body)
     }
   }
 
@@ -56,7 +57,7 @@ impl Meowquest {
       .collect()
   }
 
-  fn get_meow_version(raw_http_version: &String) -> HttpVersion {
+  fn get_http_version(raw_http_version: &String) -> HttpVersion {
     match raw_http_version.as_str() {
       "HTTP/1.1" => HttpVersion::One,
       "HTTP/2.0" => HttpVersion::Two,
@@ -64,14 +65,15 @@ impl Meowquest {
     }
   }
 
-  fn get_meowthod(raw_method: &String) -> Meowthod {
+  fn get_method(raw_method: &String) -> HttpMethod {
     match raw_method.as_str() {
-      "GET" => Meowthod::Get,
+      "GET" => HttpMethod::Get,
+      "POST" => HttpMethod::Post,
       _ => panic!("Invalid method")
     }
   }
 
-  fn get_meaders(raw_headers: Vec<String>) -> HashMap<String, String> {
+  fn get_headers(raw_headers: Vec<String>) -> HashMap<String, String> {
     let mut headers: HashMap<String, String> = HashMap::new();
 
     for line in raw_headers {
@@ -86,7 +88,7 @@ impl Meowquest {
     headers
   }
 
-  fn get_mowdy(body: Option<String>) -> Option<String> {
+  fn get_body(body: Option<String>) -> Option<String> {
     match body {
       Some(v) => if v.starts_with('\n') { Some(v.to_string()) } else { None },
       None => None
